@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Favorite Gifs</title>
+  <style type="text/css">
+    button,
+    div,
+    form,
+    input {
+      margin: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Giphy Fun</h1>
+
+    <!-- Gifs will get dumped here -->
+    <div id="gifs-view"></div>
+
+    <form id="gif-form">
+      <label for="gif-input">Add a Reaction</label>
+      <input type="text" id="gif-input"><br>
+
+      <!-- Button triggers new gif to be added -->
+      <input id="add-gif" type="submit" value="Add a Gif!">
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      // Initial array of gifs
+      var gifs = ["Shock", "Excitement", "LOL", "Disgust"];
+
+      // Function for displaying gif data
+      function renderButtons() {
+
+        // Deleting the gif buttons prior to adding new gif buttons
+        // (this is necessary otherwise we will have repeat buttons)
+        $("#gifs-view").empty();
+
+        // Looping through the array of gifs
+        for (var i = 0; i < gifs.length; i++) {
+
+          // Then dynamicaly generating buttons for each gif in the array.
+          // This code $("<button>") is all jQuery needs to create the start and end tag. (<button></button>)
+          var a = $("<button>");
+          // Adding a class
+          a.addClass("gif");
+          // Adding a data-attribute with a value of the gif at index i
+          a.attr("data-name", gifs[i]);
+          // Providing the button's text with a value of the gif at index i
+          a.text(gifs[i]);
+          // Adding the button to the HTML
+          $("#gifs-view").append(a);
+        }
+      }
+
+      // This function handles events where one button is clicked
+      $("#add-gif").on("click", function(event) {
+        // event.preventDefault() prevents the form from trying to submit itself.
+        // We're using a form so that the user can hit enter instead of clicking the button if they want
+        event.preventDefault();
+
+        // This line will grab the text from the input box
+        var gif = $("#gif-input").val().trim();
+        // The gif from the textbox is then added to our array
+        gifs.push(gif);
+
+        // calling renderButtons which handles the processing of our gif array
+        renderButtons();
+      });
+
+      // Calling the renderButtons function at least once to display the initial list of gifs
+      renderButtons();
+    </script>
+  </div>
+
+<!-- This section mainly came from the button-triggered-ajax.html assignment START-->
+
+<div id="gifs-appear-here">
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script type="text/javascript">
+    // Here I tried to add the "a" to factor in for event delegation but it didnt work, so the next line has that removed.
+    // $("button").on("click", "a", function() {    
+    $("button").on("click", function() {
+      var name = $(this).attr("data-name");
+      var queryURL = "http://api.giphy.com/v1/gifs/search?q=" +
+        name + "&api_key=dc6zaTOxFJmzC&limit=10";
+
+      $.ajax({
+          url: queryURL,
+          method: "GET"
+        })
+        .done(function(response) {
+          var results = response.data;
+
+          for (var i = 0; i < results.length; i++) {
+            var gifDiv = $("<div class='item'>");
+
+            var rating = results[i].rating;
+
+            var p = $("<p>").text("Rating: " + rating);
+
+            var personImage = $("<img>");
+            personImage.attr("src", results[i].images.fixed_height.url);
+
+            gifDiv.prepend(p);
+            gifDiv.prepend(personImage);
+
+            $("#gifs-appear-here").prepend(gifDiv);
+          }
+        });
+    });
+  </script>
+
+<!-- This section mainly came from the button-triggered-ajax.html assignment END-->
+
+
+
+<!-- Tried adding the click function to change the state of the gif from still to active. Not sure how to add the attributes for still and animated if you don't have the specific images already present -->
+<!-- <script type="text/javascript">
+    $(".gif").on("click", function() {
+            var state = $(this).attr("data-state");
+      console.log(this);
+
+
+        if (state==="still"){
+          $(this).attr("src", $(this).attr("data-animate"));
+          $(this).attr("data-state", "animate");
+        } else {
+          $(this).attr("src", $(this).attr("data-still"));
+          $(this).attr("data-state", "still");
+        }
+    });
+  </script>   -->
+
+
+</body>
+
+</html>
